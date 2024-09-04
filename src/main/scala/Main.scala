@@ -7,14 +7,21 @@ object LogisticRegression {
     val learningRate = 0.01
     val numIterations = 1000
 
-    // Sample dataset: (feature1, feature2, label)
-    // Labels are binary: 0 or 1
-    val data = Seq(
+    // Sample training dataset: (feature1, feature2, label)
+    val trainingData = Seq(
       (0.5, 0.7, 0),
       (1.5, 2.0, 0),
       (3.0, 3.5, 1),
       (2.5, 2.7, 1),
       (3.5, 4.0, 1)
+    )
+
+    // Sample test dataset: (feature1, feature2, label)
+    val testData = Seq(
+      (1.0, 1.5, 0),
+      (3.0, 2.5, 1),
+      (2.0, 2.2, 0),
+      (4.0, 4.5, 1)
     )
 
     // Initialize weights and bias with small random values
@@ -31,12 +38,12 @@ object LogisticRegression {
     }
 
     // Training loop using Gradient Descent
-    for (iter <- 1 to numIterations) {
+    for (_ <- 1 to numIterations) {
       var dw = Array(0.0, 0.0)
       var db = 0.0
 
       // Compute gradients
-      for ((x1, x2, y) <- data) {
+      for ((x1, x2, y) <- trainingData) {
         val prediction = predict((x1, x2))
         val error = prediction - y
 
@@ -47,20 +54,9 @@ object LogisticRegression {
 
       // Update weights and bias
       for (i <- weights.indices) {
-        weights(i) -= learningRate * dw(i) / data.length
+        weights(i) -= learningRate * dw(i) / trainingData.length
       }
-      bias -= learningRate * db / data.length
-
-      // (Optional) Print loss every 100 iterations
-      /*
-      if (iter % 100 == 0) {
-        val loss = data.map { case (x1, x2, y) =>
-          val pred = predict((x1, x2))
-          -y * Math.log(pred + 1e-15) - (1 - y) * Math.log(1 - pred + 1e-15)
-        }.sum / data.length
-        println(f"Iteration $iter: Loss = $loss%.4f")
-      }
-      */
+      bias -= learningRate * db / trainingData.length
     }
 
     // Final weights and bias
@@ -68,18 +64,26 @@ object LogisticRegression {
     println(f"Final bias: $bias%.4f")
 
     // Calculate accuracy on the training data
-    val predictions = data.map { case (x1, x2, label) =>
-      val prob = predict((x1, x2))
-      val predictedLabel = if (prob >= 0.5) 1 else 0
-      (predictedLabel, label)
+    val trainingAccuracy = calculateAccuracy(trainingData)
+    println(f"Overall accuracy on training data: ${trainingAccuracy * 100}%.2f%%")
+
+    // Calculate accuracy on the test data
+    val testAccuracy = calculateAccuracy(testData)
+    println(f"Overall accuracy on test data: ${testAccuracy * 100}%.2f%%")
+
+    // Function to calculate accuracy
+    def calculateAccuracy(data: Seq[(Double, Double, Int)]): Double = {
+      val predictions = data.map { case (x1, x2, label) =>
+        val prob = predict((x1, x2))
+        val predictedLabel = if (prob >= 0.5) 1 else 0
+        (predictedLabel, label)
+      }
+      predictions.count { case (predicted, actual) => predicted == actual }.toDouble / data.length
     }
 
-    val accuracy = predictions.count { case (predicted, actual) => predicted == actual }.toDouble / data.length
-    println(f"Overall accuracy on training data: ${accuracy * 100}%.2f%%")
-
     // Predict on new data
-    val testData = Seq((1.0, 1.5), (3.0, 2.5))
-    testData.foreach { case (x1, x2) =>
+    val testDataForPrediction = Seq((1.0, 1.5), (3.0, 2.5))
+    testDataForPrediction.foreach { case (x1, x2) =>
       val prob = predict((x1, x2))
       val predictedLabel = if (prob >= 0.5) 1 else 0
       println(s"Prediction for ($x1, $x2): $predictedLabel (probability: ${prob}%.4f)")
@@ -95,14 +99,21 @@ object LinearRegression {
     val learningRate = 0.01
     val numIterations = 1000
 
-    // Sample dataset: (feature1, feature2, label)
-    // Labels are continuous values
-    val data = Seq(
+    // Sample training dataset: (feature1, feature2, label)
+    val trainingData = Seq(
       (1.0, 2.0, 5.0),
       (2.0, 3.0, 7.0),
       (3.0, 4.0, 9.0),
       (4.0, 5.0, 11.0),
       (5.0, 6.0, 13.0)
+    )
+
+    // Sample test dataset: (feature1, feature2, label)
+    val testData = Seq(
+      (1.5, 2.5, 6.0),
+      (2.5, 3.5, 8.0),
+      (3.5, 4.5, 10.0),
+      (4.5, 5.5, 12.0)
     )
 
     // Initialize weights and bias with small random values
@@ -115,13 +126,12 @@ object LinearRegression {
     }
 
     // Training loop using Gradient Descent
-    for (iter <- 1 to numIterations) {
+    for (_ <- 1 to numIterations) {
       var dw = Array(0.0, 0.0)
       var db = 0.0
-      var mse = 0.0
 
       // Compute gradients
-      for ((x1, x2, y) <- data) {
+      for ((x1, x2, y) <- trainingData) {
         val prediction = predict((x1, x2))
         val error = prediction - y
 
@@ -129,24 +139,13 @@ object LinearRegression {
         dw(0) += 2 * error * x1
         dw(1) += 2 * error * x2
         db += 2 * error
-
-        // Accumulate MSE for monitoring
-        mse += error * error
       }
 
       // Update weights and bias
       for (i <- weights.indices) {
-        weights(i) -= learningRate * dw(i) / data.length
+        weights(i) -= learningRate * dw(i) / trainingData.length
       }
-      bias -= learningRate * db / data.length
-
-      // (Optional) Print MSE every 100 iterations
-      /*
-      if (iter % 100 == 0) {
-        val currentMSE = mse / data.length
-        println(f"Iteration $iter: MSE = $currentMSE%.4f")
-      }
-      */
+      bias -= learningRate * db / trainingData.length
     }
 
     // Final weights and bias
@@ -154,19 +153,27 @@ object LinearRegression {
     println(f"Final bias: $bias%.4f")
 
     // Calculate Mean Squared Error on the training data
-    val predictions = data.map { case (x1, x2, y) =>
-      val pred = predict((x1, x2))
-      (pred, y)
+    val trainingMSE = calculateMSE(trainingData)
+    println(f"Mean Squared Error on training data: $trainingMSE%.4f")
+
+    // Calculate Mean Squared Error on the test data
+    val testMSE = calculateMSE(testData)
+    println(f"Mean Squared Error on test data: $testMSE%.4f")
+
+    // Function to calculate Mean Squared Error (MSE)
+    def calculateMSE(data: Seq[(Double, Double, Double)]): Double = {
+      val errors = data.map { case (x1, x2, label) =>
+        val prediction = predict((x1, x2))
+        Math.pow(prediction - label, 2)
+      }
+      errors.sum / data.length
     }
 
-    val mse = predictions.map { case (pred, actual) => Math.pow(pred - actual, 2) }.sum / data.length
-    println(f"Mean Squared Error on training data: $mse%.4f")
-
     // Predict on new data
-    val testData = Seq((1.0, 1.5), (3.0, 2.5))
-    testData.foreach { case (x1, x2) =>
-      val pred = predict((x1, x2))
-      println(f"Prediction for ($x1, $x2): $pred%.4f")
+    val testDataForPrediction = Seq((1.0, 1.5), (3.0, 2.5))
+    testDataForPrediction.foreach { case (x1, x2) =>
+      val prediction = predict((x1, x2))
+      println(f"Prediction for ($x1, $x2): $prediction%.4f")
     }
     println()
   }
