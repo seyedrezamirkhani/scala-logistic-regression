@@ -1,9 +1,11 @@
 ## sbt project compiled with Scala 3
 
-# scala-logistic-regression
+# scala-ml-algorithms
 
 ### About
-This program builds a logistic regression model and trains it in Scala. It outputs the over-all accuracy.
+The aim of this project is to implement some machine learning algirthms in Scala.
+
+The first algorithm is logistic-regression which is trained to test data the and its accuracy reported.
 
 ### Usage
 
