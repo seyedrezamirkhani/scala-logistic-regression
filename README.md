@@ -5,7 +5,8 @@
 ### About
 The aim of this project is to implement some machine learning algirthms in Scala.
 
-The first algorithm is logistic-regression which is trained to test data the and its accuracy reported.
+1. logistic-regression
+2. linear-regression
 
 ### Usage
 
