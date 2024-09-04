@@ -2,6 +2,7 @@ import scala.util.Random
 
 // Logistic Regression Implementation
 object LogisticRegression {
+
   def run(args: Array[String]): Unit = {
     println("===== Logistic Regression =====")
     val learningRate = 0.01
@@ -37,6 +38,17 @@ object LogisticRegression {
       sigmoid(linearModel)
     }
 
+    // Function to calculate accuracy
+    def calculateAccuracy(data: Seq[(Double, Double, Int)]): Double = {
+      val predictions = data.map { case (x1, x2, label) =>
+        val prob = predict((x1, x2))
+        val predictedLabel = if (prob >= 0.5) 1 else 0
+        (predictedLabel, label)
+      }
+      predictions.count { case (predicted, actual) => predicted == actual }.toDouble / data.length
+    }
+
+
     // Training loop using Gradient Descent
     for (_ <- 1 to numIterations) {
       var dw = Array(0.0, 0.0)
@@ -70,16 +82,6 @@ object LogisticRegression {
     // Calculate accuracy on the test data
     val testAccuracy = calculateAccuracy(testData)
     println(f"Overall accuracy on test data: ${testAccuracy * 100}%.2f%%")
-
-    // Function to calculate accuracy
-    def calculateAccuracy(data: Seq[(Double, Double, Int)]): Double = {
-      val predictions = data.map { case (x1, x2, label) =>
-        val prob = predict((x1, x2))
-        val predictedLabel = if (prob >= 0.5) 1 else 0
-        (predictedLabel, label)
-      }
-      predictions.count { case (predicted, actual) => predicted == actual }.toDouble / data.length
-    }
 
     // Predict on new data
     val testDataForPrediction = Seq((1.0, 1.5), (3.0, 2.5))
@@ -152,14 +154,6 @@ object LinearRegression {
     println(s"Final weights: ${weights.mkString(", ")}")
     println(f"Final bias: $bias%.4f")
 
-    // Calculate Mean Squared Error on the training data
-    val trainingMSE = calculateMSE(trainingData)
-    println(f"Mean Squared Error on training data: $trainingMSE%.4f")
-
-    // Calculate Mean Squared Error on the test data
-    val testMSE = calculateMSE(testData)
-    println(f"Mean Squared Error on test data: $testMSE%.4f")
-
     // Function to calculate Mean Squared Error (MSE)
     def calculateMSE(data: Seq[(Double, Double, Double)]): Double = {
       val errors = data.map { case (x1, x2, label) =>
@@ -168,6 +162,14 @@ object LinearRegression {
       }
       errors.sum / data.length
     }
+
+    // Calculate Mean Squared Error on the training data
+    val trainingMSE = calculateMSE(trainingData)
+    println(f"Mean Squared Error on training data: $trainingMSE%.4f")
+
+    // Calculate Mean Squared Error on the test data
+    val testMSE = calculateMSE(testData)
+    println(f"Mean Squared Error on test data: $testMSE%.4f")
 
     // Predict on new data
     val testDataForPrediction = Seq((1.0, 1.5), (3.0, 2.5))
